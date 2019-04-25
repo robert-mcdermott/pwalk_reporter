@@ -4,7 +4,7 @@
 # [(0, 'inode'), (1, 'parent-inode'), (2, 'directory-depth'), (3, 'filename'), (4, 'fileExtension'), (5, 'UID'), (6, 'GID'), (7, 'st_size'), (8, 'st_dev'), (9, 'st_blocks'), (10, 'st_nlink'), (11, 'st_mode'), (12, 'st_atime'), (13, 'st_mtime'), (14, 'st_ctime'), (15, 'pw_fcount'), (16, 'pw_dirsum')]
 
 
-import strutils, strformat, tables, times, algorithm, parseutils, commandeer
+import strutils, strformat, tables, times, algorithm, parseutils, math, commandeer
 var now = int(epochTime())
 
 proc main() =
@@ -32,7 +32,7 @@ proc main() =
         #var mage = ((now - parseint(l[13])) div 86400)
         var aage = (now - parseint(l[12]))
         var mage = (now - parseint(l[13]))
-        var size = (parseInt(l[7]) / 1024) / 1024 
+        var size = (parseInt(l[7]) / 1024) / 1024 / 1024
 
         # populate the modification count and volume histograms
         if mage <= 0:  #some files had bogus mtimes (in the future)
@@ -128,7 +128,7 @@ proc main() =
     echo "sep=,"
     echo "Age Days, Size (GiB)"
     for bin in bins:
-        echo &"{bin}, {mage_hist_size[bin]}"
+        echo &"{bin}, {mage_hist_size[bin].formatFloat(ffDecimal, 2)}"
     
 when isMainModule:
     main()
