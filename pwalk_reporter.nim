@@ -10,7 +10,8 @@ var now = int(epochTime())
 proc main() =
     commandline:
       argument pwalkfile, string
-      exitoption "help", "h", "Usage: pwalk-reporter <pwalkoutput.csv>"
+      option atime, bool, "atime", "a", false
+      exitoption "help", "h", "Usage: pwalk-reporter [--atime] <pwalkoutput.csv>"
       errormsg "Error: please use --help for usage information"
 
     # mtime file count histogram
@@ -31,7 +32,12 @@ proc main() =
         #var aage = ((now - parseint(l[12])) div 86400)
         #var mage = ((now - parseint(l[13])) div 86400)
         var aage = (now - parseint(l[12]))
-        var mage = (now - parseint(l[13]))
+        var mage: int
+        # defaults to mtime but will use atime if --atime flag is used
+        if atime == false:
+            mage = (now - parseint(l[13]))
+        else:
+            mage = (now - parseint(l[12]))
         var size = (parseInt(l[7]) / 1024) / 1024 / 1024
 
         # populate the modification count and volume histograms
@@ -126,9 +132,9 @@ proc main() =
     
     # Out to stdout in CSV format
     echo "sep=,"
-    echo "Age Days, Size (GiB)"
+    echo "Age Days, Size (GiB), File Count"
     for bin in bins:
-        echo &"{bin}, {mage_hist_size[bin].formatFloat(ffDecimal, 2)}"
+        echo &"{bin}, {mage_hist_size[bin].formatFloat(ffDecimal, 2)}, {mage_hist_count[bin]}"
     
 when isMainModule:
     main()
