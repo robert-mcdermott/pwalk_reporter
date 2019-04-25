@@ -51,7 +51,6 @@ proc main() =
         if mage <= 0:  #some files had bogus mtimes (in the future)
             continue
         if mage <= 86400:
-            echo line
             mage_hist_count[1] += 1
             mage_hist_size[1] += size
         elif mage <= 172800:
