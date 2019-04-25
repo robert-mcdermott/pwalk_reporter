@@ -23,6 +23,9 @@ proc main() =
     1460:0.0, 1825:0.0, 2190:0.0, 2555:0.0, 2920:0.0, 3285:0.0, 3650:0.0, 4015:0.0, 4380:0.0,
     4745:0.0, 5110:0.0, 5475:0.0, 7300:0.0, 10950:0.0}.toTable
 
+    var total_files: int64
+    var total_size: float64
+
     # interate of lines in file and then chars in lines and build dictionary of char freqency
     for line in lines(pwalkfile):
         var l: seq[string] = line.split("|")
@@ -39,6 +42,10 @@ proc main() =
         else:
             mage = (now - parseint(l[12]))
         var size = (parseInt(l[7]) / 1024) / 1024 / 1024
+
+        # keep a running total of file count and size
+        total_files += 1
+        total_size += size
 
         # populate the modification count and volume histograms
         if mage <= 0:  #some files had bogus mtimes (in the future)
@@ -132,6 +139,13 @@ proc main() =
     
     # Out to stdout in CSV format
     echo "sep=,"
+    echo "Total files, Total size (GiB)"
+    echo &"{total_files}, {total_size.formatFloat(ffDecimal, 2)}\n\n"
+
+    if atime == true:
+        echo "# NOTE: figures below are for access time (atime) ages."
+    else:
+        echo "# NOTE: figures below are for modification time (ctime) ages (default); use '--atime' flag for access time stats"
     echo "Age Days, Size (GiB), File Count"
     for bin in bins:
         echo &"{bin}, {mage_hist_size[bin].formatFloat(ffDecimal, 2)}, {mage_hist_count[bin]}"
