@@ -23,6 +23,9 @@ proc main() =
     1460:0.0, 1825:0.0, 2190:0.0, 2555:0.0, 2920:0.0, 3285:0.0, 3650:0.0, 4015:0.0, 4380:0.0,
     4745:0.0, 5110:0.0, 5475:0.0, 7300:0.0, 10950:0.0}.toTable
 
+    # keep track of file types
+    var exts = initTable[string, float64]()
+
     var total_files: int64
     var total_size: float64
 
@@ -46,6 +49,16 @@ proc main() =
         # keep a running total of file count and size
         total_files += 1
         total_size += size
+
+        # keep a running total of file extensions
+        var ext = l[4].replace("\"", "")
+        if ext.len == 0:
+            ext = "noext"
+        
+        if ext in exts:
+            exts[ext] += size
+        else:
+            exts[ext] = size
 
         # populate the modification count and volume histograms
         if mage <= 0:  #some files had bogus mtimes (in the future)
@@ -149,5 +162,27 @@ proc main() =
     for bin in bins:
         echo &"{bin}, {mage_hist_size[bin].formatFloat(ffDecimal, 2)}, {mage_hist_count[bin]}"
     
+
+    # to sort the dictionay by value
+    # create a seq of tuples with the key and values reversed
+    var revpairs: seq[(float64, string)]
+    for x in exts.pairs:
+        revpairs.add((x[1], x[0]))
+
+    # sort the seq by extension freqency then reverse it to get decending order
+    revpairs.sort(system.cmp)
+    reverse(revpairs)
+
+    echo "# top file 100 file types"
+    echo "\n\nFile Extension, Size (GiB)"
+    # interate over the dictionary using the sorted keys to get a descending sorted extension freqency report
+    var count = 0
+    for x in revpairs:
+        if count >= 100:
+            break
+        echo &"{x[1]}, {exts[x[1]].formatFloat(ffDecimal, 2)}"
+        count += 1 
+
+
 when isMainModule:
     main()
