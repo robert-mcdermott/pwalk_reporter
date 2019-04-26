@@ -51,7 +51,7 @@ proc main() =
         total_size += size
 
         # keep a running total of file extensions
-        var ext = l[4].replace("\"", "")
+        var ext = l[4].replace("\"", "").toLower
         if ext.len == 0:
             ext = "noext"
         
@@ -157,7 +157,7 @@ proc main() =
     if atime == true:
         echo "# NOTE: figures below are for access time (atime) ages."
     else:
-        echo "# NOTE: figures below are for modification time (ctime) ages (default); use '--atime' flag for access time stats"
+        echo "# NOTE: figures below are for modification time (mtime) ages (default); use '--atime' flag for access time stats"
     echo "Age Days, Size (GiB), File Count"
     for bin in bins:
         echo &"{bin}, {mage_hist_size[bin].formatFloat(ffDecimal, 2)}, {mage_hist_count[bin]}"
@@ -173,8 +173,8 @@ proc main() =
     revpairs.sort(system.cmp)
     reverse(revpairs)
 
-    echo "# top file 100 file types"
-    echo "\n\nFile Extension, Size (GiB)"
+    echo "\n\n# Top file 100 file types"
+    echo "File Extension, Size (GiB)"
     # interate over the dictionary using the sorted keys to get a descending sorted extension freqency report
     var count = 0
     for x in revpairs:
