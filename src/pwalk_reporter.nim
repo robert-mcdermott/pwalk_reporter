@@ -3,7 +3,6 @@
 # inode,parent-inode,directory-depth,filename,fileExtension,UID,GID,st_size,st_dev,st_blocks,st_nlink,st_mode,st_atime,st_mtime,st_ctime,pw_fcount,pw_dirsum 
 # [(0, 'inode'), (1, 'parent-inode'), (2, 'directory-depth'), (3, 'filename'), (4, 'fileExtension'), (5, 'UID'), (6, 'GID'), (7, 'st_size'), (8, 'st_dev'), (9, 'st_blocks'), (10, 'st_nlink'), (11, 'st_mode'), (12, 'st_atime'), (13, 'st_mtime'), (14, 'st_ctime'), (15, 'pw_fcount'), (16, 'pw_dirsum')]
 
-
 import strutils, strformat, tables, times, algorithm, parseutils, math, commandeer
 
 # get the current time in seconds since epoch
@@ -44,29 +43,40 @@ proc main() =
         var l: seq[string] = line.split("|")
         
         # Skip directory entries for file stats, but gather directory sizes 
-        if l[15] != "-1":
-            var dirsize = (parseInt(l[16]) / 1024) / 1024 / 1024
-            if dirsize >= 1:  # only count directoires if they are above 1GB in size
-                dirs[l[3].toLower] = dirsize
+        try:
+            if l[15] != "-1":
+                var dirsize = (parseInt(l[16]) / 1024) / 1024 / 1024
+                if dirsize >= 1:  # only count directoires if they are above 1GB in size
+                    dirs[l[3].toLower] = dirsize
+                continue
+        except:
             continue
         
         var mage: int
-        # defaults to mtime but will use atime if --atime flag is used
-        if atime == false:
-            mage = (now - parseint(l[13]))
-        else:
-            mage = (now - parseint(l[12]))
-        var size = (parseInt(l[7]) / 1024) / 1024 / 1024
+        var size: float64
+        try:
+            # defaults to mtime but will use atime if --atime flag is used
+            if atime == false:
+                mage = (now - parseint(l[13]))
+            else:
+                mage = (now - parseint(l[12]))
+            size = (parseInt(l[7]) / 1024) / 1024 / 1024
+        except:
+            continue
 
         # keep a running total of file count and size
         total_files += 1
         total_size += size
 
-        # keep a running total of file extensions
-        var ext = l[4].replace("\"", "").toLower
-        if ext.len == 0:
-            ext = "noext"
-        
+        var ext: string
+        try:
+            # keep a running total of file extensions
+            ext = l[4].replace("\"", "").toLower
+            if ext.len == 0:
+                ext = "noext"
+        except:
+            continue
+
         if ext in exts:
             exts[ext] += size
         else:
@@ -214,9 +224,6 @@ proc main() =
             break
         echo &"{dir[1]}, {dirs[dir[1]].formatFloat(ffDecimal, 2)}"
         count_d += 1
-
-    #for k, v in dirs:
-    #    echo &"{k}, {v.formatFloat(ffDecimal, 2)}"
 
 # execution starts here
 when isMainModule:
