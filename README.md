@@ -94,4 +94,14 @@ Directory, Size (GiB)
 ...omitted for brevity 
 ```
 
-The pwalk_reporter runs fairly quickly, the output about was from a 181 million row dataset (file and directories) and was processed in about 18 minutes; a rate around 170K rows per second.
+## Installing pwalk reporter
+
+Precompiled binaries of pwalk reporter are available for Linux and Windows at the following links:
+
+- [Windows x86_64](https://gitlab.fhcrc.org/rmcdermo/pwalk_reporter/raw/master/bin/pwalk_reporter.exe)
+- [Linux x86_64](https://gitlab.fhcrc.org/rmcdermo/pwalk_reporter/raw/master/bin/pwalk_reporter.exe)
+
+
+## performance
+
+The pwalk_reporter runs fairly quickly, the output about was from a 181 million row dataset (files and directories) and was processed in about 18 minutes; a rate of around 170K rows per second.
