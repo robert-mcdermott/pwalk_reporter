@@ -5,13 +5,17 @@
 
 
 import strutils, strformat, tables, times, algorithm, parseutils, math, commandeer
+
+# get the current time in seconds since epoch
 var now = int(epochTime())
 
+# main function where all the action takes place
 proc main() =
     commandline:
       argument pwalkfile, string
       option atime, bool, "atime", "a", false
-      exitoption "help", "h", "Usage: pwalk-reporter [--atime] <pwalkoutput.csv>"
+      option offsetdays, int, "offsetdays", "o", 0
+      exitoption "help", "h", "Usage: pwalk-reporter [--atime] [--offsetdays] <pwalkoutput.csv>"
       errormsg "Error: please use --help for usage information"
 
     # mtime file count histogram
@@ -26,8 +30,13 @@ proc main() =
     # keep track of file types
     var exts = initTable[string, float64]()
 
+    # keep track of total file count and size
     var total_files: int64
     var total_size: float64
+
+    # start with offset time? usefull when working with older pwalk csv input data
+    if offsetdays != 0:
+        now =  now - (offsetdays * 86400)
 
     # interate of lines in file and then chars in lines and build dictionary of char freqency
     for line in lines(pwalkfile):
@@ -35,9 +44,7 @@ proc main() =
         # Skip directories
         if l[15] != "-1":
             continue
-        #var aage = ((now - parseint(l[12])) div 86400)
-        #var mage = ((now - parseint(l[13])) div 86400)
-        var aage = (now - parseint(l[12]))
+        
         var mage: int
         # defaults to mtime but will use atime if --atime flag is used
         if atime == false:
@@ -149,7 +156,7 @@ proc main() =
         bins.add(k)
     bins.sort(system.cmp[int])
     
-    # Out to stdout in CSV format
+    # output file age histogram data to stdout
     echo "sep=,"
     echo "Total files, Total size (GiB)"
     echo &"{total_files}, {total_size.formatFloat(ffDecimal, 2)}\n\n"
@@ -173,16 +180,20 @@ proc main() =
     revpairs.sort(system.cmp)
     reverse(revpairs)
 
+    # output file type statistics to stdout
     echo "\n\n# Top file 100 file types"
     echo "File Extension, Size (GiB)"
     # interate over the dictionary using the sorted keys to get a descending sorted extension freqency report
     var count = 0
+    var others: float64 = 0
     for x in revpairs:
         if count >= 100:
-            break
-        echo &"{x[1]}, {exts[x[1]].formatFloat(ffDecimal, 2)}"
-        count += 1 
+            others += exts[x[1]]
+        else:
+            echo &"{x[1]}, {exts[x[1]].formatFloat(ffDecimal, 2)}"
+        count += 1
+    echo &"all-other-types, {others.formatFloat(ffDecimal, 2)}"
 
-
+# execution starts here
 when isMainModule:
     main()
