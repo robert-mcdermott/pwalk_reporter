@@ -11,4 +11,4 @@ bin           = @["pwalk_reporter"]
 # Dependencies
 
 requires "nim >= 0.19.0"
-required "commandeer"
+requires "commandeer"
