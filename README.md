@@ -1,5 +1,7 @@
 # Pwalk Reporter
 
+![](images/2019-05-15-16-39-46.png)
+
 ## What is Pwalk Reporter
 
 The pwalk_reporter utility takes the output from the [pwalk](https://github.com/fizwit/filesystem-reporting-tools) utility and provides summary statistics about the filesystem.
