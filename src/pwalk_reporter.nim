@@ -29,20 +29,25 @@ proc main() =
 
     # keep track of file types
     var exts = initTable[string, float64]()
+    var dirs = initTable[string, float64]()
 
     # keep track of total file count and size
     var total_files: int64
     var total_size: float64
 
-    # start with offset time? usefull when working with older pwalk csv input data
+    # start with offset time? usefull when working with older pwalk input data
     if offsetdays != 0:
         now =  now - (offsetdays * 86400)
 
     # interate of lines in file and then chars in lines and build dictionary of char freqency
     for line in lines(pwalkfile):
         var l: seq[string] = line.split("|")
-        # Skip directories
+        
+        # Skip directory entries for file stats, but gather directory sizes 
         if l[15] != "-1":
+            var dirsize = (parseInt(l[16]) / 1024) / 1024 / 1024
+            if dirsize >= 1:  # only count directoires if they are above 1GB in size
+                dirs[l[3].toLower] = dirsize
             continue
         
         var mage: int
@@ -181,7 +186,7 @@ proc main() =
     reverse(revpairs)
 
     # output file type statistics to stdout
-    echo "\n\n# Top file 100 file types"
+    echo "\n\n# Top 100 file types"
     echo "File Extension, Size (GiB)"
     # interate over the dictionary using the sorted keys to get a descending sorted extension freqency report
     var count = 0
@@ -193,6 +198,25 @@ proc main() =
             echo &"{x[1]}, {exts[x[1]].formatFloat(ffDecimal, 2)}"
         count += 1
     echo &"all-other-types, {others.formatFloat(ffDecimal, 2)}"
+
+
+    # top 100 largest directories
+    echo "\n\n# Top 100 largest directories"
+    echo "Directory, Size (GiB)"
+    var revpairs_d: seq[(float64, string)]
+    for d in dirs.pairs:
+        revpairs_d.add((d[1], d[0]))
+    revpairs_d.sort(system.cmp)
+    reverse(revpairs_d)
+    var count_d = 0
+    for dir in revpairs_d:
+        if count_d >= 100:
+            break
+        echo &"{dir[1]}, {dirs[dir[1]].formatFloat(ffDecimal, 2)}"
+        count_d += 1
+
+    #for k, v in dirs:
+    #    echo &"{k}, {v.formatFloat(ffDecimal, 2)}"
 
 # execution starts here
 when isMainModule:
