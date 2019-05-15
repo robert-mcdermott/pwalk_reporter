@@ -14,7 +14,7 @@ proc main() =
       argument pwalkfile, string
       option atime, bool, "atime", "a", false
       option offsetdays, int, "offsetdays", "o", 0
-      exitoption "help", "h", "Usage: pwalk-reporter [--atime] [--offsetdays] <pwalkoutput.csv>"
+      exitoption "help", "h", "Usage: pwalk-reporter [--atime] [--offsetdays <int>] <pwalkoutput.csv>"
       errormsg "Error: please use --help for usage information"
 
     # mtime file count histogram
