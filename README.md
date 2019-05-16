@@ -9,13 +9,13 @@ The pwalk_reporter utility takes the output from the [pwalk](https://github.com/
 It provides the following summary statistics:
 
 - Total file count and total file size of the filesystem
-- A histogram of file ages broken down by file count and size in a fixed set of bins. The histogram can use either 'mtime' (default) or 'atime' I plan to make the histogram bins either automatic or provide the ability to specify them in a future release.
+- A histogram of file ages broken down by file count and size in a fixed set of bins. The histogram can use either 'mtime' (default) or 'atime'. I plan to make the histogram bins either automatic or provide the ability to specify them in a future release.
 - The top 100 file types by total size
 - The top 100 largest directories by size
 
 ## Usage
 
-After you have the output from [pwalk](https://github.com/fizwit/filesystem-reporting-tools) that you want to summarize (named "filesystem.csv in example below) you simply provde the input file as the parameter and direct the output to a file (named "outputfile.csv in the example).  Basic usage of the utility is shown below:
+After you have the output from [pwalk](https://github.com/fizwit/filesystem-reporting-tools) that you want to summarize (named "filesystem.csv in example below) you simply provide the input file as the parameter and direct the output to a file (named "outputfile.csv in the example).  Basic usage of the utility is shown below:
 
 ```bash
 pwalk_reporter inputfile.csv > outputfile.csv
@@ -30,6 +30,7 @@ In the example below we want to report on 'atime' and provide summary stats for 
 ```bash
 pwalk_reporter --atime --offsetdays 14 inputfile.csv > outputfile.csv
 ```
+
 The output of pwalk reporter looks like the following:
 
 ```
@@ -106,4 +107,4 @@ Precompiled binaries of pwalk reporter are available for Linux and Windows at th
 
 ## performance
 
-The pwalk_reporter runs fairly quickly, the output about was from a 181 million row dataset (files and directories) and was processed in about 18 minutes; a rate of around 170K rows per second.
+The pwalk_reporter runs fairly quickly, the output above was from a 181 million row dataset (files and directories) and was processed in about 18 minutes; a rate of around 170K rows per second.
